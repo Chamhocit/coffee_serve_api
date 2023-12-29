@@ -1,7 +1,9 @@
 package com.aptech.shop.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.Date;
 
@@ -17,14 +19,17 @@ public class Product {
     @Column(name = "pro_name")
     private String name;
 
+    @Column(name = "pro_price")
+    private Double proPrice;
+
     @Column(name = "pro_desciption")
     private String description;
 
     @Column(name = "pro_sold")
-    private int sold;
+    private Integer sold;
 
     @Column(name = "pro_quantity")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "category")
     private String category;
@@ -33,6 +38,6 @@ public class Product {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "product", fetch = FetchType.EAGER)
     private ProductImage img;
 }

@@ -1,5 +1,7 @@
 package com.aptech.shop.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,5 +21,6 @@ public class ProductImage {
     private String imageThree;
     @OneToOne
     @JoinColumn(name = "pro_id")
+    @JsonIgnore
     private Product product;
 }

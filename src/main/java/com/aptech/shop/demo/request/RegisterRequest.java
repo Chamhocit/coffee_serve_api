@@ -24,6 +24,7 @@ public class RegisterRequest {
     @UniqueEmail(message = "Email is already")
     private String email;
     @NotBlank(message = "Password shouldn't be null")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$", message = "Password must contain at least 8 characters including at least 1 numeric character")
     private String password;
     private List<String> roles;
 }

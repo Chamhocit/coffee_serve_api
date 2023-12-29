@@ -50,7 +50,7 @@ public class JwtService {
         return username;
     }
 
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         Claims claims = extractClaim(token);
         Date date = claims.getExpiration();
         return date.before(new Date());

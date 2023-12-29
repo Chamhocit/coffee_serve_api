@@ -29,11 +29,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)throws Exception{
-        httpSecurity.csrf().csrfTokenRepository(csrfTokenRepository());
-//        httpSecurity.csrf().disable();
+//        httpSecurity.csrf().csrfTokenRepository(csrfTokenRepository());
+        httpSecurity.csrf().disable();
 //        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/images/*").permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                 .anyRequest()
                 .authenticated()
@@ -62,5 +63,7 @@ public class SecurityConfig {
         repository.setHeaderName("X-CSRF-TOKEN");
         return repository;
     }
+
+
 
 }

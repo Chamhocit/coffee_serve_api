@@ -1,7 +1,9 @@
 package com.aptech.shop.demo.service;
 
+import com.aptech.shop.demo.Response.CheckUserResponse;
 import com.aptech.shop.demo.Response.LoginResponse;
 import com.aptech.shop.demo.Response.RegisterResponse;
+import com.aptech.shop.demo.Response.SetMessageResponse;
 import com.aptech.shop.demo.entity.Role;
 import com.aptech.shop.demo.entity.Token;
 import com.aptech.shop.demo.entity.User;
@@ -10,14 +12,20 @@ import com.aptech.shop.demo.repository.TokenRepository;
 import com.aptech.shop.demo.repository.UserRepository;
 import com.aptech.shop.demo.request.LoginRequest;
 import com.aptech.shop.demo.request.RegisterRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +41,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
-
+    private final UserDetailsService userDetailsService;
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
                 .token(jwtToken)
@@ -86,6 +94,41 @@ public class AuthenticationService {
                 .refreshToken(refreshToken)
                 .name(user.getName())
                 .build();
+    }
+
+    public CheckUserResponse CheckUser(HttpServletRequest request){
+//        SetMessageResponse setMessageResponse = new SetMessageResponse();
+        Cookie[] cookies = request.getCookies();
+        Cookie jwtCookie = null;
+        final String cookieName = "jwt";
+        String token = null;
+        if(cookies!=null){
+            jwtCookie = Arrays.stream(cookies)
+                    .filter(x->x.getName().equals(cookieName))
+                    .findFirst().orElse(null);
+        }
+
+        if(cookies==null || jwtCookie==null ){
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            setMessageResponse.SetMessage(response, "The user is not logged in.");
+            return null;
+
+        }else {
+            token = jwtCookie.getValue();
+            if(jwtService.isTokenExpired(token)){
+//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                setMessageResponse.SetMessage(response, "The user is not logged in.");
+                return null;
+            }else {
+                String userEmail = jwtService.extractUsername(token);
+                User user = (User) userDetailsService.loadUserByUsername(userEmail);
+                Set<Role> roles = user.getRoles();
+                List<String> rolesNames = roles.stream().map(Role::getName).collect(Collectors.toList());
+                CheckUserResponse checkUserResponse = CheckUserResponse
+                        .builder().status(true).name(user.getName()).role(rolesNames).build();
+                return checkUserResponse;
+            }
+        }
     }
 
 }
